@@ -2,38 +2,32 @@
 exports.__esModule = true;
 var Calculator = (function () {
     function Calculator(input) {
-        this.input = input;
         this.value = 0;
         this.sumReducer = function (total, value) { return total + value; };
-        var char = this.getDelimiter();
-        var values = this.getValues(char);
-        this.value = values.reduce(this.sumReducer);
+        var char = this.getDelimiter(input);
+        this.value = this.cleanString(input, char)
+            .replace('\n', char)
+            .split(char)
+            .map(this.cleanValue)
+            .reduce(this.sumReducer);
     }
-    Calculator.prototype.cleanValues = function (value) {
+    Calculator.prototype.cleanValue = function (value) {
         if (+value < 0)
             throw new TypeError("Negative number");
         if (+value <= 1000)
             return +value;
         return 0;
     };
-    Calculator.prototype.getDelimiter = function () {
-        if (this.input.substring(0, 2) == "//") {
-            var nextChar = this.input.substring(2, 3);
-            if (nextChar != '[')
-                return nextChar;
-            var delimiter = this.getStringBetweenTwoCharacters(this.input, '[', ']');
-            return delimiter;
+    Calculator.prototype.getDelimiter = function (string) {
+        if (string.substring(0, 2) === "//") {
+            var nextChar = string.substring(2, 3);
+            return (nextChar != '[') ? nextChar : this.getStringBetweenTwoCharacters(string, '[', ']');
         }
         return ",";
     };
-    Calculator.prototype.getValues = function (replaceChar) {
-        var stringValues = this.input;
-        stringValues = stringValues.replace("//", '');
-        stringValues = stringValues.replace("[", '');
-        stringValues = stringValues.replace("]", '');
-        stringValues = stringValues.replace("\n", replaceChar);
-        var stringArray = stringValues.split(replaceChar);
-        return stringArray.map(this.cleanValues);
+    Calculator.prototype.cleanString = function (dirtyString, delimiter) {
+        var regex = new RegExp('[^0-9' + delimiter + '\n]+', 'gi');
+        return dirtyString.replace(regex, '');
     };
     Calculator.prototype.getStringBetweenTwoCharacters = function (str, startChar, endChar) {
         return str.substring(str.lastIndexOf(startChar) + 1, str.lastIndexOf(endChar));

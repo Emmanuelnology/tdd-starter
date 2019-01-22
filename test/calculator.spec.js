@@ -41,16 +41,64 @@ describe('calculator', function () {
         var calculator = new calculator_1.Calculator('1,2,1001');
         chai_1.expect(calculator.value).to.equal(3);
     });
-    it('should be able to speciify a single character delimiter on the first line', function () {
+    it('should be able to specify a single character delimiter on the first line', function () {
         var calculator = new calculator_1.Calculator('//#1#42');
         chai_1.expect(calculator.value).to.equal(43);
     });
-    it('should be able to speciify a multiple character delimiters on the first line', function () {
+    it('should be able to specify a multiple character delimiters on the first line', function () {
         var calculator = new calculator_1.Calculator('//[##]1##42');
         chai_1.expect(calculator.value).to.equal(43);
     });
 });
-describe('getValues', function () {
+describe('sumReducer', function () {
+    it('should sum items in an array', function () {
+        var calculator = new calculator_1.Calculator('');
+        var array = [1, 2, 3];
+        chai_1.expect(array.reduce(calculator.sumReducer)).to.equal(6);
+        array = [1];
+        chai_1.expect(array.reduce(calculator.sumReducer)).to.equal(1);
+    });
+});
+describe('cleanValue', function () {
+    it('should convert strings to numbers', function () {
+        var calculator = new calculator_1.Calculator('');
+        chai_1.expect(calculator.cleanValue('0')).to.equal(0);
+        chai_1.expect(calculator.cleanValue('1')).to.equal(1);
+    });
+    it('should throw an exception on negative numbers', function () {
+        var calculator = new calculator_1.Calculator('');
+        chai_1.expect(function () { return calculator.cleanValue('-1'); }).to["throw"](TypeError, "Negative number");
+        chai_1.expect(function () { return calculator.cleanValue('-20'); }).to["throw"](TypeError, "Negative number");
+        chai_1.expect(function () { return calculator.cleanValue('-200'); }).to["throw"](TypeError, "Negative number");
+    });
+    it('should ignore numbers > 1000', function () {
+        var calculator = new calculator_1.Calculator('');
+        chai_1.expect(calculator.cleanValue('999')).to.equal(999);
+        chai_1.expect(calculator.cleanValue('1000')).to.equal(1000);
+        chai_1.expect(calculator.cleanValue('1001')).to.equal(0);
+    });
+});
+describe('getDelimiter', function () {
+    it('should default to ,', function () {
+        var calculator = new calculator_1.Calculator('');
+        chai_1.expect(calculator.getDelimiter('1,2,3')).to.equal(',');
+        chai_1.expect(calculator.getDelimiter('1!2!3')).to.equal(',');
+        chai_1.expect(calculator.getDelimiter(' //1!2!3')).to.equal(',');
+    });
+    it('should return next character', function () {
+        var calculator = new calculator_1.Calculator('');
+        chai_1.expect(calculator.getDelimiter('//!1,2,3')).to.equal('!');
+        chai_1.expect(calculator.getDelimiter('// !1,2,3')).to.equal(' ');
+    });
+});
+describe('cleanString', function () {
+    it('should remove everything apart from numbers, newlines and delimeters', function () {
+        var calculator = new calculator_1.Calculator('');
+        var testString = '`1234567890-=¬!"£$%^&*()_+{}:@~|<>?[];\\,./`\'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ\n\t ';
+        chai_1.expect(calculator.cleanString(testString, ';')).to.equal('1234567890;\n');
+    });
+});
+describe('getStringBetweenTwoCharacters', function () {
     it('should return single character between square brackets', function () {
         var calculator = new calculator_1.Calculator('');
         chai_1.expect(calculator.getStringBetweenTwoCharacters('[,]', '[', ']')).to.equal(',');
@@ -60,32 +108,6 @@ describe('getValues', function () {
         var calculator = new calculator_1.Calculator('');
         chai_1.expect(calculator.getStringBetweenTwoCharacters('[#,]', '[', ']')).to.equal('#,');
         chai_1.expect(calculator.getStringBetweenTwoCharacters('erfw2r[#,]r2re2', '[', ']')).to.equal('#,');
-    });
-});
-describe('arrayReducer', function () {
-    it('should sum items in an array', function () {
-        var calculator = new calculator_1.Calculator('');
-        var array = [1, 2, 3];
-        chai_1.expect(array.reduce(calculator.sumReducer)).to.equal(6);
-    });
-});
-describe('cleanValues', function () {
-    it('should convert strings to numbers', function () {
-        var calculator = new calculator_1.Calculator('');
-        chai_1.expect(calculator.cleanValues('0')).to.equal(0);
-        chai_1.expect(calculator.cleanValues('1')).to.equal(1);
-    });
-    it('should throw an exception on negative numbers', function () {
-        var calculator = new calculator_1.Calculator('');
-        chai_1.expect(function () { return calculator.cleanValues('-1'); }).to["throw"](TypeError, "Negative number");
-        chai_1.expect(function () { return calculator.cleanValues('-20'); }).to["throw"](TypeError, "Negative number");
-        chai_1.expect(function () { return calculator.cleanValues('-200'); }).to["throw"](TypeError, "Negative number");
-    });
-    it('should ignore numbers > 1000', function () {
-        var calculator = new calculator_1.Calculator('');
-        chai_1.expect(calculator.cleanValues('999')).to.equal(999);
-        chai_1.expect(calculator.cleanValues('1000')).to.equal(1000);
-        chai_1.expect(calculator.cleanValues('1001')).to.equal(0);
     });
 });
 //# sourceMappingURL=calculator.spec.js.map

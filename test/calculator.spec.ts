@@ -65,20 +65,77 @@ describe('calculator', () => {
         expect(calculator.value).to.equal(3);
     })
 
-
-
-    it('should be able to speciify a single character delimiter on the first line', () => {
+    it('should be able to specify a single character delimiter on the first line', () => {
         let calculator = new Calculator('//#1#42');
         expect(calculator.value).to.equal(43);
     })
 
-    it('should be able to speciify a multiple character delimiters on the first line', () => {
+    it('should be able to specify a multiple character delimiters on the first line', () => {
         let calculator = new Calculator('//[##]1##42');
         expect(calculator.value).to.equal(43);
     })
 });
 
-describe('getValues', () => {
+describe('sumReducer', () => {
+    it('should sum items in an array', () => {
+        let calculator = new Calculator('');
+        let array = [1,2,3];
+        expect(array.reduce(calculator.sumReducer)).to.equal(6);
+        array = [1];
+        expect(array.reduce(calculator.sumReducer)).to.equal(1);
+    })
+})
+
+
+describe('cleanValue', () => {
+    it('should convert strings to numbers', () => {
+        let calculator = new Calculator('');
+        expect(calculator.cleanValue('0')).to.equal(0);
+        expect(calculator.cleanValue('1')).to.equal(1);
+    })
+    
+    it('should throw an exception on negative numbers', () => {
+        let calculator = new Calculator('');
+        expect(() => calculator.cleanValue('-1')).to.throw(TypeError, "Negative number");
+        expect(() => calculator.cleanValue('-20')).to.throw(TypeError, "Negative number");
+        expect(() => calculator.cleanValue('-200')).to.throw(TypeError, "Negative number");
+    })
+
+    it('should ignore numbers > 1000', () => {
+        let calculator = new Calculator('');
+        expect(calculator.cleanValue('999')).to.equal(999);
+        expect(calculator.cleanValue('1000')).to.equal(1000);
+        expect(calculator.cleanValue('1001')).to.equal(0);
+    })
+})
+
+describe('getDelimiter', () => {
+    it('should default to ,', () => {
+        let calculator = new Calculator('');
+        expect(calculator.getDelimiter('1,2,3')).to.equal(',');
+        expect(calculator.getDelimiter('1!2!3')).to.equal(',');
+        expect(calculator.getDelimiter(' //1!2!3')).to.equal(',');
+    })
+   
+    it('should return next character', () => {
+        let calculator = new Calculator('');
+        expect(calculator.getDelimiter('//!1,2,3')).to.equal('!');
+        expect(calculator.getDelimiter('// !1,2,3')).to.equal(' ');
+    })
+    
+})
+
+describe('cleanString', () => {
+
+    it('should remove everything apart from numbers, newlines and delimeters', () => {
+        let calculator = new Calculator('');
+        let testString = '`1234567890-=¬!"£$%^&*()_+{}:@~|<>?[];\\,./`\'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ\n\t ';
+        expect(calculator.cleanString(testString, ';')).to.equal('1234567890;\n');
+    })  
+    
+})
+
+describe('getStringBetweenTwoCharacters', () => {
     it('should return single character between square brackets', () => {
         let calculator = new Calculator('');
         expect(calculator.getStringBetweenTwoCharacters('[,]','[',']')).to.equal(',');
@@ -90,34 +147,3 @@ describe('getValues', () => {
         expect(calculator.getStringBetweenTwoCharacters('erfw2r[#,]r2re2','[',']')).to.equal('#,');
     })
 });
-
-describe('arrayReducer', () => {
-    it('should sum items in an array', () => {
-        let calculator = new Calculator('');
-        let array = [1,2,3];
-        expect(array.reduce(calculator.sumReducer)).to.equal(6);
-    })
-})
-
-describe('cleanValues', () => {
-    it('should convert strings to numbers', () => {
-        let calculator = new Calculator('');
-        expect(calculator.cleanValues('0')).to.equal(0);
-        expect(calculator.cleanValues('1')).to.equal(1);
-    })
-    
-    it('should throw an exception on negative numbers', () => {
-        let calculator = new Calculator('');
-        expect(() => calculator.cleanValues('-1')).to.throw(TypeError, "Negative number");
-        expect(() => calculator.cleanValues('-20')).to.throw(TypeError, "Negative number");
-        expect(() => calculator.cleanValues('-200')).to.throw(TypeError, "Negative number");
-    })
-
-    it('should ignore numbers > 1000', () => {
-        let calculator = new Calculator('');
-        expect(calculator.cleanValues('999')).to.equal(999);
-        expect(calculator.cleanValues('1000')).to.equal(1000);
-        expect(calculator.cleanValues('1001')).to.equal(0);
-    })
-})
-

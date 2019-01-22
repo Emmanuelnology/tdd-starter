@@ -1,40 +1,34 @@
 export class Calculator {
     value = 0;
-    constructor (private input: string) {
-        let char:string = this.getDelimiter();
-        let values:number[] = this.getValues(char);
-        this.value = values.reduce(this.sumReducer);
+    constructor (input: string) {
+        let char = this.getDelimiter(input);
+        this.value = this.cleanString(input, char)
+            .replace('\n',char)
+            .split(char)   
+            .map(this.cleanValue)
+            .reduce(this.sumReducer);
     }
 
-    sumReducer = (total:number, value:number) => total + value;
+    sumReducer = (total:number, value:number):number => total + value;
 
-    cleanValues (value:string):number {
+    cleanValue (value:string):number {
         if (+value < 0) throw new TypeError("Negative number");
         if (+value <= 1000) return +value;
         return 0;
     }
 
-    getDelimiter():string {
-        if(this.input.substring(0, 2) == "//"){
-            let nextChar = this.input.substring(2, 3);
-            if(nextChar != '[') return nextChar;
-            let delimiter = this.getStringBetweenTwoCharacters(this.input,'[',']');
-            return delimiter;
+    getDelimiter(string:string):string {
+        if(string.substring(0, 2) === "//") {
+            let nextChar = string.substring(2, 3);
+            return (nextChar != '[') ? nextChar : this.getStringBetweenTwoCharacters(string,'[',']');
         }
         return ",";
     }
 
-    getValues(replaceChar: string):number[] {
-        let stringValues =  this.input;
-        stringValues = stringValues.replace("//",'');
-        stringValues = stringValues.replace("[",'');
-        stringValues = stringValues.replace("]",'');
-        stringValues = stringValues.replace("\n",replaceChar);
-        let stringArray = stringValues.split(replaceChar);
-        return stringArray.map(this.cleanValues);
+    cleanString(dirtyString:string, delimiter: string):string {
+       const regex = new RegExp('[^0-9'+ delimiter + '\n]+', 'gi');
+       return dirtyString.replace(regex,'');
     }
-
-
 
     getStringBetweenTwoCharacters(str:string, startChar:string, endChar:string):string {
         return str.substring(
