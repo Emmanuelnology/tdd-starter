@@ -12,11 +12,10 @@ var Calculator = (function () {
             .reduce(this.sumReducer);
     }
     Calculator.prototype.cleanValue = function (value) {
-        if (+value < 0)
+        var number = Number(value);
+        if (number < 0)
             throw new TypeError("Negative number");
-        if (+value <= 1000)
-            return +value;
-        return 0;
+        return (number <= 1000) ? number : 0;
     };
     Calculator.prototype.getDelimiter = function (string) {
         if (string.substring(0, 2) === "//") {

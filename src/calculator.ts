@@ -12,9 +12,9 @@ export class Calculator {
     sumReducer = (total:number, value:number):number => total + value;
 
     cleanValue (value:string):number {
-        if (+value < 0) throw new TypeError("Negative number");
-        if (+value <= 1000) return +value;
-        return 0;
+        const number = Number(value);
+        if (number < 0) throw new TypeError("Negative number");
+        return (number <= 1000) ? number : 0;
     }
 
     getDelimiter(string:string):string {
@@ -26,7 +26,7 @@ export class Calculator {
     }
 
     cleanString(dirtyString:string, delimiter: string):string {
-       const regex = new RegExp('[^0-9'+ delimiter + '\n]+', 'gi');
+       const regex = new RegExp('[^0-9' + delimiter + '\n]+', 'gi');
        return dirtyString.replace(regex,'');
     }
 
