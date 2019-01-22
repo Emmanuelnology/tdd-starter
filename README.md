@@ -1,1 +1,9 @@
-# tdd-starter
+- npm init
+- npm install mocha chai typescript @types/mocha @types/chai --save-dev
+- add script to test: mocha test/**/*.spec.js
+- mkdir test src
+- create empty test file and src file
+- create serve script: tsc --watch
+- run serve: npm run serve
+- run tests: npm run test
+- add gitignore for node_modules

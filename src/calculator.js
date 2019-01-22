@@ -4,20 +4,17 @@ var Calculator = (function () {
     function Calculator(input) {
         this.input = input;
         this.value = 0;
+        this.sumReducer = function (total, value) { return total + value; };
         var char = this.getDelimiter();
         var values = this.getValues(char);
-        this.value = this.sumArray(values, char);
+        this.value = values.reduce(this.sumReducer);
     }
-    Calculator.prototype.sumArray = function (values, char) {
-        var output = 0;
-        for (var index in values) {
-            var value = +values[index];
-            if (value < 0)
-                throw new TypeError("Negative number");
-            if (value < 1000)
-                output += value;
-        }
-        return output;
+    Calculator.prototype.cleanValues = function (value) {
+        if (+value < 0)
+            throw new TypeError("Negative number");
+        if (+value <= 1000)
+            return +value;
+        return 0;
     };
     Calculator.prototype.getDelimiter = function () {
         if (this.input.substring(0, 2) == "//") {
@@ -35,7 +32,8 @@ var Calculator = (function () {
         stringValues = stringValues.replace("[", '');
         stringValues = stringValues.replace("]", '');
         stringValues = stringValues.replace("\n", replaceChar);
-        return stringValues.split(replaceChar);
+        var stringArray = stringValues.split(replaceChar);
+        return stringArray.map(this.cleanValues);
     };
     Calculator.prototype.getStringBetweenTwoCharacters = function (str, startChar, endChar) {
         return str.substring(str.lastIndexOf(startChar) + 1, str.lastIndexOf(endChar));

@@ -2,18 +2,16 @@ export class Calculator {
     value = 0;
     constructor (private input: string) {
         let char:string = this.getDelimiter();
-        let values:string[] = this.getValues(char);
-        this.value = this.sumArray(values, char);
+        let values:number[] = this.getValues(char);
+        this.value = values.reduce(this.sumReducer);
     }
 
-    sumArray(values:string[], char:string) {
-        let output: number = 0;
-        for (let index in values) {
-            let value = +values[index];
-            if (value < 0) throw new TypeError("Negative number");
-            if (value < 1000) output += value;
-        }
-        return output;
+    sumReducer = (total:number, value:number) => total + value;
+
+    cleanValues (value:string):number {
+        if (+value < 0) throw new TypeError("Negative number");
+        if (+value <= 1000) return +value;
+        return 0;
     }
 
     getDelimiter():string {
@@ -26,14 +24,17 @@ export class Calculator {
         return ",";
     }
 
-    getValues(replaceChar: string):string[] {
+    getValues(replaceChar: string):number[] {
         let stringValues =  this.input;
         stringValues = stringValues.replace("//",'');
         stringValues = stringValues.replace("[",'');
         stringValues = stringValues.replace("]",'');
         stringValues = stringValues.replace("\n",replaceChar);
-        return stringValues.split(replaceChar);
+        let stringArray = stringValues.split(replaceChar);
+        return stringArray.map(this.cleanValues);
     }
+
+
 
     getStringBetweenTwoCharacters(str:string, startChar:string, endChar:string):string {
         return str.substring(
